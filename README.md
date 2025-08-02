@@ -2,6 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
 [![Java](https://img.shields.io/badge/Made%20with-Java-orange)](https://openjdk.java.net)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=gbaudic_joularjx&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=gbaudic_joularjx)
 
 ![JoularJX Logo](joularjx.png)
 
