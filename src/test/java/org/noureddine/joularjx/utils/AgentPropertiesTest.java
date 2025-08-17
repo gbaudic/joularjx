@@ -10,7 +10,6 @@
 
 package org.noureddine.joularjx.utils;
 
-import com.ginsberg.junit.exit.ExpectSystemExitWithStatus;
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

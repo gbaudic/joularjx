@@ -21,72 +21,74 @@ public class PowermetricsMacOSTest {
 
     @Test
     void parseSonomaM1MaxPowerLines() {
-        PowermetricsMacOS cpu = new PowermetricsMacOS() {
+        try (PowermetricsMacOS cpu = new PowermetricsMacOS() {
             @Override
             protected BufferedReader getReader() {
                 return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/powermetrics-sonoma-m1max.txt")));
             }
-        };
-        cpu.intelCpu = false;
+        }) {
+            cpu.intelCpu = false;
 
 
-        // the ??-Cluster and Combined lines are to be ignored, hence do not count the 359mW
-        assertEquals(0.211d + 0.147d + 0d /* +0.359d */, cpu.getCurrentPower(0), 0.0001d);
+            // the ??-Cluster and Combined lines are to be ignored, hence do not count the 359mW
+            assertEquals(0.211d + 0.147d + 0d /* +0.359d */, cpu.getCurrentPower(0), 0.0001d);
+        }
     }
 
     @Test
     void parseMontereyM2PowerLines() {
-        PowermetricsMacOS cpu = new PowermetricsMacOS() {
+        try (PowermetricsMacOS cpu = new PowermetricsMacOS() {
             @Override
             protected BufferedReader getReader() {
                 return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/powermetrics-monterey-m2.txt")));
             }
-        };
-        cpu.intelCpu = false;
+        }) {
+            cpu.intelCpu = false;
 
-        // the ??-Cluster and Combined lines are to be ignored, hence do not count the 6mW
-        assertEquals(/*0.006d*/ + 0d + 0.019d + 0.036d + 0.010d + 0d + 0.025d , cpu.getCurrentPower(0), 0.0001d);
+            // the ??-Cluster and Combined lines are to be ignored, hence do not count the 6mW
+            assertEquals(/*0.006d*/ + 0d + 0.019d + 0.036d + 0.010d + 0d + 0.025d , cpu.getCurrentPower(0), 0.0001d);
+        }
     }
 
     @Test
     void parseSonomaIntelPowerLines() {
-        PowermetricsMacOS cpu = new PowermetricsMacOS() {
+        try (PowermetricsMacOS cpu = new PowermetricsMacOS() {
             @Override
             protected BufferedReader getReader() {
                 return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/powermetrics-sonoma-intel.txt")));
             }
-        };
+        }) {
+            cpu.intelCpu = true;
 
-        cpu.intelCpu = true;
-
-        assertEquals(4.87d + 3.43d + 3.38d + 4.21d + 3.21d , cpu.getCurrentPower(0), 0.0001d);
+            assertEquals(4.87d + 3.43d + 3.38d + 4.21d + 3.21d , cpu.getCurrentPower(0), 0.0001d);
+        }
     }
 
 
     @Test
     void parseHeaderIntel() throws IOException {
-        PowermetricsMacOS cpu = new PowermetricsMacOS() {
+        try (PowermetricsMacOS cpu = new PowermetricsMacOS() {
             @Override
             protected BufferedReader getReader() {
                 return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/powermetrics-sonoma-intel.txt")));
             }
-        };
-
-        cpu.readHeader();
-        assertTrue(cpu.intelCpu);
+        }) {
+            cpu.readHeader();
+            assertTrue(cpu.intelCpu);
+        }
     }
 
     @Test
     void parseHeaderM1() throws IOException {
-        PowermetricsMacOS cpu = new PowermetricsMacOS() {
+        try (PowermetricsMacOS cpu = new PowermetricsMacOS() {
             @Override
             protected BufferedReader getReader() {
                 return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/powermetrics-monterey-m2.txt")));
             }
-        };
-
-        cpu.readHeader();
-        assertFalse(cpu.intelCpu);
+        }) {
+            cpu.readHeader();
+            assertFalse(cpu.intelCpu);
+        }
     }
 
     /**
@@ -105,25 +107,25 @@ public class PowermetricsMacOSTest {
         final String contents1 = "\n".repeat(10) + "CPU Power: 742 mW\n".repeat(2);
         final String contents2 = "\n".repeat(10) + "CPU Power: 1200 mW\n".repeat(2);
 
-        PowermetricsMacOS cpu = new PowermetricsMacOS() {
+        try (PowermetricsMacOS cpu = new PowermetricsMacOS() {
             @Override
             protected BufferedReader getReader() {
                 return reader;
             }
-        };
+        }) {
+            // nothing written yet, so expect 0
+            assertEquals(0d, cpu.getCurrentPower(0), 0.0001d);
 
-        // nothing written yet, so expect 0
-        assertEquals(0d, cpu.getCurrentPower(0), 0.0001d);
+            Thread writerBlock1 = createWriter(writer, contents1);
+            writerBlock1.start();
+            writerBlock1.join();
+            assertEquals(2*0.742d, cpu.getCurrentPower(0), 0.0001d);
 
-        Thread writerBlock1 = createWriter(writer, contents1);
-        writerBlock1.start();
-        writerBlock1.join();
-        assertEquals(2*0.742d, cpu.getCurrentPower(0), 0.0001d);
-
-        Thread writerBlock2 = createWriter(writer, contents2);
-        writerBlock2.start();
-        writerBlock2.join();
-        assertEquals(2*1.2d, cpu.getCurrentPower(0), 0.0001d);
+            Thread writerBlock2 = createWriter(writer, contents2);
+            writerBlock2.start();
+            writerBlock2.join();
+            assertEquals(2*1.2d, cpu.getCurrentPower(0), 0.0001d);
+        }
     }
 
     /**
