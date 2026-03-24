@@ -53,6 +53,7 @@
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <auto-service.version>1.1.1</auto-service.version>
+        <spotless.version>2.46.1</spotless.version>
     </properties>
 
     <dependencies>
@@ -252,6 +253,50 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>makeAggregateBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <projectType>application</projectType>
+                    <includeTestScope>true</includeTestScope>
+                    <outputFormat>json</outputFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <toggleOffOn />
+                        <eclipse />
+                        <removeUnusedImports />
+                        <forbidWildcardImports />
+    
+                        <licenseHeader>
+                            <content>/*
+ * Copyright (c) 2021-$YEAR, Adel Noureddine, Université de Pau et des Pays de l'Adour.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the
+ * GNU General Public License v3.0 only (GPL-3.0-only)
+ * which accompanies this distribution, and is available at
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * Author : Adel Noureddine
+ */</content>
+                        </licenseHeader>
+                    </java>
+                </configuration>
             </plugin>
         </plugins>
     </build>
